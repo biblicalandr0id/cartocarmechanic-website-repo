@@ -1,4 +1,4 @@
-// CARTER CAR MOBILE MECHANIC - GOOGLE APPS SCRIPT BACKEND (v3 - With Calendar Integration)
+// CAR TO CAR MOBILE MECHANIC - GOOGLE APPS SCRIPT BACKEND (v3 - With Calendar Integration)
 // This script handles form submissions, saves to Google Sheets, creates calendar events,
 // and sends notifications with robust error handling and reporting.
 
@@ -7,11 +7,11 @@
 // ========================================
 const CONFIG = {
   BUSINESS_PHONE: '3176431578',
-  BUSINESS_EMAIL: 'carter.car.mechanic@gmail.com',
+  BUSINESS_EMAIL: 'cartocarmechanic@gmail.com',
   TWILIO_ACCOUNT_SID: 'YOUR_TWILIO_SID_HERE',  // Get from twilio.com
   TWILIO_AUTH_TOKEN: 'YOUR_TWILIO_TOKEN_HERE',  // Get from twilio.com
   TWILIO_PHONE_NUMBER: 'YOUR_TWILIO_NUMBER_HERE',  // Format: +1XXXXXXXXXX
-  SHEET_NAME: 'Carter Car CRM'
+  SHEET_NAME: 'Car To Car CRM'
 };
 
 // NOTE: The file "GoogleAppsScript-Updated.js" in your LOCAL repository

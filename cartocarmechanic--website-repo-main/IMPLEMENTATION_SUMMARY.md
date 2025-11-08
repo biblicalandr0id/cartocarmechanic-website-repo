@@ -1,4 +1,4 @@
-# Carter Car Mechanic - Calendar Integration & Booking Fee Optimization
+# Car To Car Mechanic - Calendar Integration & Booking Fee Optimization
 
 ## Implementation Summary
 
@@ -31,7 +31,7 @@ This document summarizes all changes made to fix your calendar integration and o
 <script>
     const GOOGLE_CALENDAR_CONFIG = {
         apiKey: 'YOUR_GOOGLE_CALENDAR_API_KEY',
-        calendarId: 'carter.car.mechanic@gmail.com',
+        calendarId: 'cartocarmechanic@gmail.com',
         clientId: 'YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com',
         discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
         scopes: 'https://www.googleapis.com/auth/calendar.readonly'
@@ -209,7 +209,7 @@ Follow the instructions in `GOOGLE_CALENDAR_SETUP.md`:
 ### Step 2: Update Google Apps Script (Required for automatic calendar events)
 
 1. Go to [script.google.com](https://script.google.com)
-2. Open your "Carter Car CRM" script
+2. Open your "Car To Car CRM" script
 3. Replace entire code with content from `GoogleAppsScript-Updated.js`
 4. Save and redeploy
 

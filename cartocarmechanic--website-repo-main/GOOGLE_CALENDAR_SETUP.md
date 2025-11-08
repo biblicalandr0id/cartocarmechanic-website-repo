@@ -13,9 +13,9 @@ The Google Calendar API integration enables:
 ## Step 1: Create Google Cloud Project
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Sign in with your business email: `carter.car.mechanic@gmail.com`
+2. Sign in with your business email: `cartocarmechanic@gmail.com`
 3. Click "Select a project" → "New Project"
-4. Project Name: `Carter Car Calendar Integration`
+4. Project Name: `Car To Car Calendar Integration`
 5. Click "Create"
 
 ## Step 2: Enable Google Calendar API
@@ -48,11 +48,11 @@ The Google Calendar API integration enables:
 2. Click "Create Credentials" → "OAuth client ID"
 3. If prompted, configure the OAuth consent screen:
    - User Type: External
-   - App name: "Carter Car Booking System"
-   - User support email: `carter.car.mechanic@gmail.com`
-   - Developer contact: `carter.car.mechanic@gmail.com`
+   - App name: "Car To Car Booking System"
+   - User support email: `cartocarmechanic@gmail.com`
+   - Developer contact: `cartocarmechanic@gmail.com`
 4. Application type: "Web application"
-5. Name: "Carter Car Website"
+5. Name: "Car To Car Website"
 6. Authorized JavaScript origins:
    - `https://discover-austin.github.io`
    - `https://cartocarmechanic.com` (if using custom domain)
@@ -62,13 +62,13 @@ The Google Calendar API integration enables:
 ## Step 4: Make Your Google Calendar Public (for availability checking)
 
 1. Go to [Google Calendar](https://calendar.google.com)
-2. Sign in with `carter.car.mechanic@gmail.com`
+2. Sign in with `cartocarmechanic@gmail.com`
 3. Click the three dots next to your calendar → "Settings and sharing"
 4. Scroll to "Access permissions for events"
 5. Check "Make available to public"
 6. Under "Access permissions", select "See only free/busy (hide details)"
    - This shows customers when you're busy but keeps appointment details private
-7. Scroll down and copy your Calendar ID (it should be `carter.car.mechanic@gmail.com`)
+7. Scroll down and copy your Calendar ID (it should be `cartocarmechanic@gmail.com`)
 
 ## Step 5: Update Your Website Code
 
@@ -79,7 +79,7 @@ The Google Calendar API integration enables:
 ```javascript
 const GOOGLE_CALENDAR_CONFIG = {
     apiKey: 'YOUR_API_KEY_HERE', // Paste the API key from Step 3
-    calendarId: 'carter.car.mechanic@gmail.com', // Your calendar email
+    calendarId: 'cartocarmechanic@gmail.com', // Your calendar email
     clientId: 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com', // Paste OAuth Client ID (optional)
     discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
     scopes: 'https://www.googleapis.com/auth/calendar.readonly'
@@ -93,7 +93,7 @@ const GOOGLE_CALENDAR_CONFIG = {
 The Google Apps Script needs to be updated to automatically create calendar events when bookings are received.
 
 1. Open your Google Apps Script at: [script.google.com](https://script.google.com)
-2. Find your "Carter Car CRM" script
+2. Find your "Car To Car CRM" script
 3. Open the file `GoogleAppsScript-Updated.js` from your repository
 4. **IMPORTANT:** Replace the placeholder values in the CONFIG section with your actual credentials:
    - `YOUR_TWILIO_ACCOUNT_SID` → Your Twilio Account SID

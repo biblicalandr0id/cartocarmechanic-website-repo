@@ -9,9 +9,9 @@ Your website is already working with the calendar fixes and new $45 messaging. T
 **I cannot do this for you because it requires logging into YOUR Google account.**
 
 1. Go to: https://console.cloud.google.com/
-2. Sign in with: carter.car.mechanic@gmail.com
+2. Sign in with: cartocarmechanic@gmail.com
 3. Click "Select a project" (top) → "NEW PROJECT"
-   - Name: `Carter Car Calendar`
+   - Name: `Car To Car Calendar`
    - Click CREATE
 4. Wait 30 seconds for project to create
 5. Click the hamburger menu (☰) → "APIs & Services" → "Library"
@@ -52,13 +52,13 @@ Save and push to GitHub.
 ## STEP 3: Make Your Calendar Public (2 minutes)
 
 1. Go to: https://calendar.google.com
-2. Sign in with: carter.car.mechanic@gmail.com
+2. Sign in with: cartocarmechanic@gmail.com
 3. Click the 3 dots next to your calendar → "Settings and sharing"
 4. Scroll to "Access permissions"
 5. Check: ☑️ "Make available to public"
 6. In the dropdown, select: **"See only free/busy (hide details)"**
    - This shows when you're busy but keeps customer info private
-7. Scroll down and verify "Calendar ID" is: `carter.car.mechanic@gmail.com`
+7. Scroll down and verify "Calendar ID" is: `cartocarmechanic@gmail.com`
 8. Click "Back" (top left)
 
 ---
@@ -68,8 +68,8 @@ Save and push to GitHub.
 **I cannot access your Apps Script, so you need to copy-paste.**
 
 1. Go to: https://script.google.com
-2. Sign in with: carter.car.mechanic@gmail.com
-3. Find your "Carter Car CRM" script
+2. Sign in with: cartocarmechanic@gmail.com
+3. Find your "Car To Car CRM" script
 4. **DELETE ALL THE OLD CODE**
 5. Open the file `GoogleAppsScript-Updated.js` from your repository
 6. **COPY ALL THE CODE** (I already put your Twilio credentials in it)
