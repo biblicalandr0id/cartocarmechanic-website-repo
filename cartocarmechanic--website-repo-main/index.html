@@ -15,7 +15,21 @@
         gtag('js', new Date());
         gtag('config', 'G-YVBCTSM5CH'); // Replace with your GA4 ID
     </script>
-    
+
+    <!-- Google Calendar API -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        // IMPORTANT: Replace these with your actual Google Calendar API credentials
+        // Get these from: https://console.cloud.google.com/
+        const GOOGLE_CALENDAR_CONFIG = {
+            apiKey: 'YOUR_GOOGLE_CALENDAR_API_KEY', // Replace with your API key
+            calendarId: 'carter.car.mechanic@gmail.com', // Your business calendar email
+            clientId: 'YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com', // Replace with your OAuth client ID
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+            scopes: 'https://www.googleapis.com/auth/calendar.readonly'
+        };
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -413,19 +427,57 @@
         }
 
         .service-fee-notice {
-            background: rgba(255, 107, 0, 0.1);
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.05), rgba(255, 107, 0, 0.1));
             border: 2px solid rgba(255, 107, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
+            border-radius: 15px;
+            padding: 25px;
             margin-bottom: 30px;
             text-align: center;
         }
 
-        .service-fee-notice p {
+        .service-fee-notice h3 {
             color: #ff6b00;
-            font-size: 1.1rem;
+            font-size: 1.4rem;
             font-weight: bold;
+            margin-bottom: 15px;
             font-family: Arial, sans-serif;
+        }
+
+        .service-fee-notice p {
+            color: #cccccc;
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        .service-fee-notice .fee-credit {
+            color: #00ff00;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .service-fee-notice ul {
+            list-style: none;
+            text-align: left;
+            max-width: 600px;
+            margin: 15px auto;
+            color: #cccccc;
+        }
+
+        .service-fee-notice ul li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .service-fee-notice ul li:before {
+            content: "✓";
+            color: #00ff00;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
         }
 
         .form-group {
@@ -1121,6 +1173,23 @@
         <h2>BOOK YOUR <span>SERVICE</span></h2>
         <div class="booking-container">
             <div class="booking-form">
+                <!-- Enhanced Service Fee Notice -->
+                <div class="service-fee-notice">
+                    <h3>💳 $45 Service Call Fee</h3>
+                    <p class="fee-credit">✓ 100% CREDITED TOWARD YOUR REPAIR BILL</p>
+                    <p>We know upfront fees can be concerning, but here's why this benefits you:</p>
+                    <ul>
+                        <li>Reserves your specific appointment time - no waiting</li>
+                        <li>Covers our mobile service & diagnostic equipment</li>
+                        <li><strong>The ENTIRE $45 is credited to your final repair cost</strong></li>
+                        <li>You're only paying for parts + labor - service fee is included!</li>
+                        <li>No hidden charges, transparent pricing from start to finish</li>
+                    </ul>
+                    <p style="font-style: italic; color: #999; margin-top: 15px;">
+                        Think of it as a deposit, not an extra charge. Your $45 goes directly toward fixing your vehicle.
+                    </p>
+                </div>
+
                 <div class="progress-bar">
                     <div class="progress-step active" data-step="1">
                         <span>1</span>
@@ -1539,12 +1608,110 @@
                 }
 
 
-                // Custom Calendar Logic
+                // ========================================
+                // GOOGLE CALENDAR API INTEGRATION
+                // ========================================
                 const calendar = document.getElementById('calendar');
                 const timeSlotsContainer = document.getElementById('time-slots');
                 let selectedDate = new Date();
+                let calendarApiInitialized = false;
+                let busyTimeSlots = []; // Stores busy times from Google Calendar
+                let calendarSelectedDate = null;
 
-                function renderCalendar() {
+                // Business hours configuration
+                const BUSINESS_HOURS = {
+                    start: 9, // 9 AM
+                    end: 17,  // 5 PM
+                    slotDuration: 2 // 2-hour appointment slots
+                };
+
+                // Initialize Google Calendar API
+                function initGoogleCalendarAPI() {
+                    console.log('Initializing Google Calendar API...');
+
+                    // Check if API key is configured
+                    if (GOOGLE_CALENDAR_CONFIG.apiKey === 'YOUR_GOOGLE_CALENDAR_API_KEY') {
+                        console.warn('Google Calendar API key not configured. Using fallback mode without real-time availability.');
+                        calendarApiInitialized = false;
+                        renderCalendar();
+                        return;
+                    }
+
+                    gapi.load('client', () => {
+                        gapi.client.init({
+                            apiKey: GOOGLE_CALENDAR_CONFIG.apiKey,
+                            discoveryDocs: GOOGLE_CALENDAR_CONFIG.discoveryDocs
+                        }).then(() => {
+                            console.log('Google Calendar API initialized successfully');
+                            calendarApiInitialized = true;
+                            renderCalendar();
+                        }).catch(error => {
+                            console.error('Calendar API initialization error:', error);
+                            console.log('Falling back to calendar without real-time availability');
+                            calendarApiInitialized = false;
+                            renderCalendar();
+                        });
+                    });
+                }
+
+                // Fetch busy time slots from Google Calendar
+                async function fetchBusySlots(startDate, endDate) {
+                    if (!calendarApiInitialized) {
+                        console.log('Calendar API not initialized, skipping busy slot fetch');
+                        return [];
+                    }
+
+                    try {
+                        const response = await gapi.client.request({
+                            'path': 'https://www.googleapis.com/calendar/v3/freeBusy',
+                            'method': 'POST',
+                            'body': {
+                                'timeMin': startDate.toISOString(),
+                                'timeMax': endDate.toISOString(),
+                                'items': [{ 'id': GOOGLE_CALENDAR_CONFIG.calendarId }]
+                            }
+                        });
+
+                        const calendars = response.result.calendars;
+                        const calendarData = calendars[GOOGLE_CALENDAR_CONFIG.calendarId];
+
+                        if (calendarData && calendarData.busy) {
+                            busyTimeSlots = calendarData.busy;
+                            console.log('Fetched busy slots:', busyTimeSlots);
+                            return busyTimeSlots;
+                        }
+                        return [];
+                    } catch (error) {
+                        console.error('Error fetching calendar availability:', error);
+                        return [];
+                    }
+                }
+
+                // Check if a specific time slot is available
+                function isTimeSlotAvailable(dateTime) {
+                    if (!calendarApiInitialized || busyTimeSlots.length === 0) {
+                        return true; // If API not initialized, show all slots as available
+                    }
+
+                    const slotStart = new Date(dateTime);
+                    const slotEnd = new Date(dateTime);
+                    slotEnd.setHours(slotEnd.getHours() + BUSINESS_HOURS.slotDuration);
+
+                    for (let busy of busyTimeSlots) {
+                        const busyStart = new Date(busy.start);
+                        const busyEnd = new Date(busy.end);
+
+                        // Check if slot overlaps with busy time
+                        if ((slotStart >= busyStart && slotStart < busyEnd) ||
+                            (slotEnd > busyStart && slotEnd <= busyEnd) ||
+                            (slotStart <= busyStart && slotEnd >= busyEnd)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                async function renderCalendar() {
                     calendar.innerHTML = '';
                     const monthYear = document.createElement('div');
                     monthYear.id = 'month-year';
@@ -1556,6 +1723,11 @@
                         </div>
                     `;
                     calendar.appendChild(monthYear);
+
+                    // Fetch busy slots for the current month
+                    const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                    const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0, 23, 59, 59);
+                    await fetchBusySlots(monthStart, monthEnd);
 
                     const calendarGrid = document.createElement('div');
                     calendarGrid.classList.add('calendar-grid');
@@ -1577,20 +1749,34 @@
                         calendarGrid.appendChild(emptyDay);
                     }
 
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
                     for (let i = 1; i <= daysInMonth; i++) {
                         const day = document.createElement('div');
                         day.classList.add('calendar-day');
                         day.textContent = i;
-                        day.dataset.date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
+                        const dayDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
+                        day.dataset.date = dayDate.toISOString();
 
-                        if (new Date(day.dataset.date) < new Date().setHours(0, 0, 0, 0)) {
+                        // Disable past dates
+                        if (dayDate < today) {
                             day.classList.add('disabled');
+                        }
+
+                        // Highlight selected date
+                        if (calendarSelectedDate &&
+                            calendarSelectedDate.getDate() === i &&
+                            calendarSelectedDate.getMonth() === selectedDate.getMonth() &&
+                            calendarSelectedDate.getFullYear() === selectedDate.getFullYear()) {
+                            day.classList.add('selected');
                         }
 
                         day.addEventListener('click', () => {
                             if (!day.classList.contains('disabled')) {
                                 document.querySelectorAll('.calendar-day.selected').forEach(d => d.classList.remove('selected'));
                                 day.classList.add('selected');
+                                calendarSelectedDate = new Date(day.dataset.date);
                                 renderTimeSlots(new Date(day.dataset.date));
                             }
                         });
@@ -1608,32 +1794,80 @@
                         selectedDate.setMonth(selectedDate.getMonth() + 1);
                         renderCalendar();
                     });
+
+                    // If a date was previously selected, re-render time slots
+                    if (calendarSelectedDate) {
+                        renderTimeSlots(calendarSelectedDate);
+                    }
                 }
 
                 function renderTimeSlots(date) {
                     timeSlotsContainer.innerHTML = '';
-                    const timeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
 
-                    timeSlots.forEach(time => {
+                    if (!date) {
+                        timeSlotsContainer.innerHTML = '<p style="color: #ccc; text-align: center;">Please select a date first</p>';
+                        return;
+                    }
+
+                    const timeSlots = [];
+                    for (let hour = BUSINESS_HOURS.start; hour < BUSINESS_HOURS.end; hour += BUSINESS_HOURS.slotDuration) {
+                        const slotDate = new Date(date);
+                        slotDate.setHours(hour, 0, 0, 0);
+
+                        const displayHour = hour > 12 ? hour - 12 : hour;
+                        const period = hour >= 12 ? 'PM' : 'AM';
+                        const timeString = `${displayHour}:00 ${period}`;
+
+                        const isAvailable = isTimeSlotAvailable(slotDate);
+
+                        timeSlots.push({
+                            time: timeString,
+                            dateTime: slotDate,
+                            available: isAvailable
+                        });
+                    }
+
+                    timeSlots.forEach(slot => {
                         const timeSlot = document.createElement('div');
                         timeSlot.classList.add('time-slot');
-                        timeSlot.textContent = time;
-                        timeSlot.dataset.time = time;
 
-                        timeSlot.addEventListener('click', () => {
-                            document.querySelectorAll('.time-slot.selected').forEach(t => t.classList.remove('selected'));
-                            timeSlot.classList.add('selected');
-                            const selectedDateTime = new Date(date);
-                            const [hours, minutes] = time.split(':');
-                            selectedDateTime.setHours(hours, minutes);
-                            // This is where you would sync with the hidden Google Calendar iframe
-                            console.log('Selected date and time:', selectedDateTime);
-                        });
+                        if (slot.available) {
+                            timeSlot.textContent = slot.time;
+                            timeSlot.dataset.time = slot.time;
+                            timeSlot.dataset.datetime = slot.dateTime.toISOString();
+
+                            timeSlot.addEventListener('click', () => {
+                                document.querySelectorAll('.time-slot.selected').forEach(t => t.classList.remove('selected'));
+                                timeSlot.classList.add('selected');
+                                console.log('Selected appointment time:', slot.dateTime);
+                            });
+                        } else {
+                            timeSlot.textContent = `${slot.time} (Booked)`;
+                            timeSlot.style.opacity = '0.3';
+                            timeSlot.style.cursor = 'not-allowed';
+                            timeSlot.style.background = 'rgba(255, 0, 0, 0.1)';
+                            timeSlot.style.borderColor = 'rgba(255, 0, 0, 0.3)';
+                        }
+
                         timeSlotsContainer.appendChild(timeSlot);
                     });
+
+                    // Show helpful message if API not initialized
+                    if (!calendarApiInitialized) {
+                        const notice = document.createElement('p');
+                        notice.style.cssText = 'color: #999; font-size: 0.9rem; text-align: center; margin-top: 15px; font-style: italic;';
+                        notice.textContent = 'Note: Real-time availability requires Google Calendar API configuration.';
+                        timeSlotsContainer.appendChild(notice);
+                    }
                 }
 
-                renderCalendar();
+                // Initialize calendar when page loads
+                if (typeof gapi !== 'undefined') {
+                    initGoogleCalendarAPI();
+                } else {
+                    console.warn('Google API library not loaded. Rendering calendar without API integration.');
+                    renderCalendar();
+                }
 
                 // Smooth scroll for anchor links
                 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
